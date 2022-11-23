@@ -27,7 +27,6 @@ import com.hjq.http.request.HttpRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.net.SocketTimeoutException;
@@ -40,9 +39,9 @@ import okhttp3.ResponseBody;
 public final class RequestHandler<T extends HttpData> implements IRequestHandler {
 
     private final Context context;
-    private EasyHttp.ExceptionListener listener;
+    private EasySetting.ExceptionListener listener;
     private Class<T> tClass;
-    public RequestHandler(Context context,Class<T> tClass, EasyHttp.ExceptionListener listener) {
+    public RequestHandler(Context context,Class<T> tClass, EasySetting.ExceptionListener listener) {
         this.context = context;
         this.listener = listener;
         this.tClass = tClass;
@@ -120,9 +119,8 @@ public final class RequestHandler<T extends HttpData> implements IRequestHandler
 
             if (model.isRequestSucceed()) {
                 // 代表执行成功
-                Object data = model.getData();
-                Object o = GsonFactory.getSingletonGson().fromJson(text, data.getClass());
-                return o;
+
+                return result;
             }
 
             if (model.isTokenFailure()) {

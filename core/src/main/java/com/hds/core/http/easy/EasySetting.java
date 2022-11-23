@@ -5,29 +5,29 @@ import android.app.Application;
 import com.hds.core.http.PersistenceCookieJar;
 import com.hjq.http.EasyConfig;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import okhttp3.OkHttpClient;
 
-public class EasyHttp<T> {
+public class EasySetting<T> {
     private EasyConfig config;
     private boolean isStart;
 
 
-    private static EasyHttp instance;
-    private EasyHttp (){}
+    private static EasySetting instance;
+    private EasySetting(){}
 
 
-    public static synchronized  EasyHttp getInstance() {
+    public static synchronized EasySetting getInstance() {
         if (instance == null) {
-            instance = new EasyHttp();
+            instance = new EasySetting();
         }
         return instance;
     }
 
 
-    public EasyHttp<T> start() {
+
+    public EasySetting<T> start() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .cookieJar(new PersistenceCookieJar())
                 .build();
@@ -38,7 +38,7 @@ public class EasyHttp<T> {
     }
 
     // 是否打印日志
-    public EasyHttp<T> setLogEnabled(boolean isLogEnable) {
+    public EasySetting<T> setLogEnabled(boolean isLogEnable) {
         checkStart();
         config.setLogEnabled(isLogEnable);
         return this;
@@ -46,7 +46,7 @@ public class EasyHttp<T> {
 
     //测试地址
     private DebugServer debugServer;
-    public EasyHttp<T> setDebugService(String server) {
+    public EasySetting<T> setDebugService(String server) {
         checkStart();
         debugServer = new DebugServer(server);
         return this;
@@ -54,7 +54,7 @@ public class EasyHttp<T> {
 
     //正式地址
     private ReleaseServer releaseServer;
-    public EasyHttp<T> setReleaseServer(String server) {
+    public EasySetting<T> setReleaseServer(String server) {
         checkStart();
         releaseServer = new ReleaseServer(server);
         return this;
@@ -63,7 +63,7 @@ public class EasyHttp<T> {
     //设置项目buildConfig
     private Boolean isDebug;
 
-    public EasyHttp<T> setBuildConfig(Boolean isDebug) {
+    public EasySetting<T> setBuildConfig(Boolean isDebug) {
         checkStart();
         this.isDebug = isDebug;
         return this;
@@ -71,28 +71,30 @@ public class EasyHttp<T> {
 
 
     // 设置请求处理策略
-    public EasyHttp<T> setBaseResult(Application application,Class<T> tClass, ExceptionListener listener) {
+    private Class<T> tClass;
+    public EasySetting<T> setBaseResult(Application application, Class<T> tClass, ExceptionListener listener) {
+        this.tClass = tClass;
         checkStart();
         config.setHandler(new RequestHandler(application,tClass, listener));
         return this;
     }
 
     // 设置请求重试次数
-    public EasyHttp<T> setRetryCount(int count) {
+    public EasySetting<T> setRetryCount(int count) {
         checkStart();
         config.setRetryCount(count);
         return this;
     }
 
     //设置请求重试时间
-    public EasyHttp<T> setRetryTime(long time) {
+    public EasySetting<T> setRetryTime(long time) {
         checkStart();
         config.setRetryTime(time);
         return this;
     }
 
     // 添加全局请求参数
-    public EasyHttp<T> addParam(Map<String, String> params) {
+    public EasySetting<T> addParam(Map<String, String> params) {
         checkStart();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             config.addParam(entry.getKey(), entry.getValue());
@@ -101,7 +103,7 @@ public class EasyHttp<T> {
     }
 
     //添加请求头
-    public EasyHttp<T> addHeader(Map<String, String> params) {
+    public EasySetting<T> addHeader(Map<String, String> params) {
         checkStart();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             config.addHeader(entry.getKey(), entry.getValue());
@@ -138,6 +140,10 @@ public class EasyHttp<T> {
         if (!isStart) {
             throw new NullPointerException("请先调用start()进行初始化");
         }
+    }
+
+    public Class<T> getBaseClass(){
+        return this.tClass;
     }
 
     public interface ExceptionListener {
